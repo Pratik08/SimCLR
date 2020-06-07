@@ -27,7 +27,8 @@ from __future__ import print_function
 from absl import flags
 import tensorflow.compat.v1 as tf
 
-from tensorflow.python.tpu import tpu_function  # pylint: disable=g-direct-tensorflow-import
+# pylint: disable=g-direct-tensorflow-import
+from tensorflow.python.tpu import tpu_function
 
 
 FLAGS = flags.FLAGS
