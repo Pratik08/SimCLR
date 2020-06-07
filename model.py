@@ -45,8 +45,8 @@ def build_multi_kingdom_model_fn(model, animal_num_classes, plant_num_classes,
         elif FLAGS.train_mode == 'finetune':
             # Base network forward pass.
             with tf.variable_scope('base_model'):
-                if FLAGS.train_mode == 'finetune' and
-                FLAGS.fine_tune_after_block >= 4:
+                if FLAGS.train_mode == 'finetune'\
+                 and FLAGS.fine_tune_after_block >= 4:
                     # Finetune just supervised (linear) head will not
                     # update BN stats.
                     model_train_mode = False
