@@ -207,12 +207,12 @@ def build_multi_kingdom_model_fn(model, animal_num_classes, plant_num_classes,
                     weights=mask_plant)
 
             metrics = {
-                'logits_animal' = logits_animal,
-                'logits_plant' = logits_plant,
-                'labels_animal' = labels['animal_label'],
-                'labels_plant' = labels['plant_label'],
-                'mask_animal' = labels['animal_mask'],
-                'mask_plant' = labels['plant_mask'],
+                'logits_animal': logits_animal,
+                'logits_plant': logits_plant,
+                'labels_animal': labels['animal_label'],
+                'labels_plant': labels['plant_label'],
+                'mask_animal': labels['animal_mask'],
+                'mask_plant': labels['plant_mask'],
             }
 
             return tf.estimator.tpu.TPUEstimatorSpec(
