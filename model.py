@@ -172,56 +172,56 @@ def build_multi_kingdom_model_fn(model, animal_num_classes, plant_num_classes,
                     mode=mode, train_op=train_op, loss=loss,
                     scaffold_fn=scaffold_fn)
 
-        elif mode == tf.estimator.ModeKeys.PREDICT:
-            _, animal_top_5 = tf.nn.top_k(logits_animal, k=5)
-            _, plant_top_5 = tf.nn.top_k(logits_plant, k=5)
+            elif mode == tf.estimator.ModeKeys.PREDICT:
+                _, animal_top_5 = tf.nn.top_k(logits_animal, k=5)
+                _, plant_top_5 = tf.nn.top_k(logits_plant, k=5)
 
-            predictions = {
-                'label': tf.argmax(labels['label'], 1),
-                'animal_label': tf.argmax(labels['animal_label'], 1),
-                'plant_label': tf.argmax(labels['plant_label'], 1),
-                'animal_top_5': animal_top_5,
-                'plant_top_5': plant_top_5,
-            }
+                predictions = {
+                    'label': tf.argmax(labels['label'], 1),
+                    'animal_label': tf.argmax(labels['animal_label'], 1),
+                    'plant_label': tf.argmax(labels['plant_label'], 1),
+                    'animal_top_5': animal_top_5,
+                    'plant_top_5': plant_top_5,
+                }
 
-            return tf.estimator.tpu.TPUEstimatorSpec(mode=mode,
-                                                     predictions=predictions)
-        elif mode == tf.estimator.ModeKeys.EVAL:
-            def metric_fn(logits_animal, logits_plant, labels_animal,
-                          labels_plant, mask_animal, mask_plant, **kws):
-                metrics['label_animal_top_1_accuracy'] = tf.metrics.accuracy(
-                    tf.argmax(labels_animal, 1),
-                    tf.argmax(logits_animal, axis=1),
-                    weights=mask_animal)
-                metrics['label_animal_top_5_accuracy'] = tf.metrics.recall_at_k(
-                    tf.argmax(labels_animal, 1),
-                    logits_animal,
-                    k=5,
-                    weights=mask_animal)
-                metrics['label_plant_top_1_accuracy'] = tf.metrics.accuracy(
-                    tf.argmax(labels_plant, 1),
-                    tf.argmax(logits_plant, axis=1),
-                    weights=mask_plant)
-                metrics['label_plant_top_5_accuracy'] = tf.metrics.recall_at_k(
-                    tf.argmax(labels_plant, 1),
-                    logits_plant,
-                    k=5,
-                    weights=mask_plant)
+                return tf.estimator.tpu.TPUEstimatorSpec(mode=mode,
+                                                         predictions=predictions)
+            elif mode == tf.estimator.ModeKeys.EVAL:
+                def metric_fn(logits_animal, logits_plant, labels_animal,
+                              labels_plant, mask_animal, mask_plant, **kws):
+                    metrics['label_animal_top_1_accuracy'] = tf.metrics.accuracy(
+                        tf.argmax(labels_animal, 1),
+                        tf.argmax(logits_animal, axis=1),
+                        weights=mask_animal)
+                    metrics['label_animal_top_5_accuracy'] = tf.metrics.recall_at_k(
+                        tf.argmax(labels_animal, 1),
+                        logits_animal,
+                        k=5,
+                        weights=mask_animal)
+                    metrics['label_plant_top_1_accuracy'] = tf.metrics.accuracy(
+                        tf.argmax(labels_plant, 1),
+                        tf.argmax(logits_plant, axis=1),
+                        weights=mask_plant)
+                    metrics['label_plant_top_5_accuracy'] = tf.metrics.recall_at_k(
+                        tf.argmax(labels_plant, 1),
+                        logits_plant,
+                        k=5,
+                        weights=mask_plant)
 
-            metrics = {
-                'logits_animal': logits_animal,
-                'logits_plant': logits_plant,
-                'labels_animal': labels['animal_label'],
-                'labels_plant': labels['plant_label'],
-                'mask_animal': labels['animal_mask'],
-                'mask_plant': labels['plant_mask'],
-            }
+                metrics = {
+                    'logits_animal': logits_animal,
+                    'logits_plant': logits_plant,
+                    'labels_animal': labels['animal_label'],
+                    'labels_plant': labels['plant_label'],
+                    'mask_animal': labels['animal_mask'],
+                    'mask_plant': labels['plant_mask'],
+                }
 
-            return tf.estimator.tpu.TPUEstimatorSpec(
-                mode=mode, loss=loss, eval_metrics=(metric_fn, metrics),
-                scaffold_fn=None)
-        else:
-            print('Invalid mode.')
+                return tf.estimator.tpu.TPUEstimatorSpec(
+                    mode=mode, loss=loss, eval_metrics=(metric_fn, metrics),
+                    scaffold_fn=None)
+            else:
+                print('Invalid mode.')
 
     return model_fn
 
