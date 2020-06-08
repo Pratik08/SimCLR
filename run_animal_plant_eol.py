@@ -14,9 +14,9 @@ import data_eol as data_lib
 import model as model_lib
 import model_util as model_util
 
+import tensorflow_hub as hub
 import tensorflow.compat.v1 as tf
 import tensorflow_datasets as tfds
-import tensorflow_hub as hub
 
 FLAGS = flags.FLAGS
 
@@ -431,7 +431,7 @@ def main(argv):
             estimator=estimator,
             input_fn=data_lib.build_multi_kingdom_input_fn(
                 tot_num_classes, animal_num_classes,
-                plant_num_classes, False),
+                plant_num_classes, is_training=False),
             eval_steps=eval_steps,
             model=model,
             animal_num_classes=animal_num_classes,
@@ -440,18 +440,18 @@ def main(argv):
         perform_predict(estimator=estimator,
                         input_fn=data_lib.build_multi_kingdom_input_fn(
                             tot_num_classes, animal_num_classes,
-                            plant_num_classes, False)
+                            plant_num_classes, is_training=False)
                         )
     else:
         estimator.train(data_lib.build_multi_kingdom_input_fn(
-            tot_num_classes, animal_num_classes, plant_num_classes, True),
-            max_steps=train_steps)
+            tot_num_classes, animal_num_classes, plant_num_classes,
+            is_training=True), max_steps=train_steps)
         if FLAGS.mode == 'train_then_eval':
             perform_evaluation(
                 estimator=estimator,
                 input_fn=data_lib.build_multi_kingdom_input_fn(
                     tot_num_classes, animal_num_classes,
-                    plant_num_classes, False),
+                    plant_num_classes, is_training=False),
                 eval_steps=eval_steps,
                 model=model,
                 animal_num_classes=animal_num_classes,

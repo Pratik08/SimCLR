@@ -114,39 +114,6 @@ def build_multi_kingdom_input_fn(tot_num_classes,
         B_NAME = FLAGS.gcs_bucket_name
         filenames = []
 
-        with tf.io.gfile.GFile(FLAGS.labels_path, 'r') as f:
-            all_labels = f.read().splitlines()
-        with tf.io.gfile.GFile(FLAGS.animal_labels_path, 'r') as f:
-            animals_labels = f.read().splitlines()
-        with tf.io.gfile.GFile(FLAGS.plant_labels_path, 'r') as f:
-            plants_labels = f.read().splitlines()
-
-        assert len(all_labels) == len(animals_labels) + len(plants_labels)
-        assert tot_num_classes == len(all_labels)
-        assert animal_num_classes == len(animals_labels)
-        assert plant_num_classes == len(plants_labels)
-
-        # label_idx = 0
-        # all_label_dict = dict()
-        # for l in all_labels:
-        #     all_label_dict[label_idx] = l
-        #     label_idx += 1
-        #
-        # animals_label_idx = 0
-        # animals_label_dict = dict()
-        # for l in animals_labels:
-        #     animals_label_dict[l] = animals_label_idx
-        #     animals_label_idx += 1
-        #
-        # plants_label_idx = 0
-        # plants_label_dict = dict()
-        # for l in plants_labels:
-        #     plants_label_dict[l] = plants_label_idx
-        #     plants_label_idx += 1
-        #
-        # animals_labels = set(animals_labels)
-        # plants_labels = set(plants_labels)
-
         def map_fn(example_proto):
             img_feat_desc = {
                 'image/class/label': tf.io.FixedLenFeature([], tf.int64),
@@ -163,13 +130,6 @@ def build_multi_kingdom_input_fn(tot_num_classes,
             plant_label = feat['image/class/plant_label']
             animal_mask = feat['image/mask/animal_mask']
             plant_mask = feat['image/mask/plant_mask']
-
-            # if all_label_dict[label] in plants_labels:
-            #     plant_label = plants_label_dict[all_label_dict[label]]
-            #     plant_mask = 1.0
-            # else:
-            #     animal_label = animals_label_dict[all_label_dict[label]]
-            #     animal_mask = 1.0
 
             if FLAGS.mode == 'predict':
                 image = preprocess_fn_finetune(image)
@@ -190,8 +150,7 @@ def build_multi_kingdom_input_fn(tot_num_classes,
                 label = tf.one_hot(label, tot_num_classes)
                 animal_label = tf.one_hot(animal_label, animal_num_classes)
                 plant_label = tf.one_hot(plant_label, plant_num_classes)
-            return image, label, animal_label, plant_label, 1.0, animal_mask,\
-                plant_mask
+            return image, label, animal_label, plant_label, 1.0, animal_mask, plant_mask
 
         # Returns a tf.data.Dataset object
         if is_training:
@@ -221,8 +180,7 @@ def build_multi_kingdom_input_fn(tot_num_classes,
 
         dataset = pad_to_batch(dataset, params['batch_size'])
         # Mask is always 1.0
-        image, label, animal_label, plant_label, mask, animal_mask,\
-            plant_mask = tf.data.make_one_shot_iterator(dataset).get_next()
+        image, label, animal_label, plant_label, mask, animal_mask, plant_mask = tf.data.make_one_shot_iterator(dataset).get_next()
 
         return image, {'label': label,
                        'animal_label': animal_label,
@@ -232,7 +190,6 @@ def build_multi_kingdom_input_fn(tot_num_classes,
                        'plant_mask': plant_mask}
 
     return _input_fn
-
 
 
 def build_input_fn(n_classes, is_training):
