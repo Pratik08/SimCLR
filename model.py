@@ -56,17 +56,19 @@ def build_multi_kingdom_model_fn(model, animal_num_classes, plant_num_classes,
 
             logits_animal = model_util.supervised_head(hiddens,
                                                        animal_num_classes,
-                                                       is_training)
+                                                       is_training,
+                                                       name='head_supervised_animals')
             obj_lib.add_supervised_loss(labels=labels['animal_label'],
                                         logits=logits_animal,
                                         weights=labels['animal_mask'])
 
             logits_plant = model_util.supervised_head(hiddens,
                                                       plant_num_classes,
-                                                      is_training)
+                                                      is_training,
+                                                      name='head_supervised_plants')
             obj_lib.add_supervised_loss(labels=labels['plant_label'],
                                         logits=logits_plant,
-                                        weights=labels['plant_label'])
+                                        weights=labels['plant_mask'])
             model_util.add_weight_decay(adjust_per_optimizer=True)
             loss = tf.losses.get_total_loss()
 

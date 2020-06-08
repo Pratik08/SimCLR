@@ -461,4 +461,7 @@ def main(argv):
 if __name__ == '__main__':
     # Disable eager mode when running with TF2.
     tf.disable_eager_execution()
+
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+    tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
     app.run(main)
