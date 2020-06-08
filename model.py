@@ -93,7 +93,7 @@ def build_multi_kingdom_model_fn(model, animal_num_classes, plant_num_classes,
                             should_record = tf.math.equal(tf.math.floormod(
                                 tf.train.get_global_step(),
                                 FLAGS.train_summary_steps), 0)
-                        with tf.summary.record_if(should_record):
+                        with tf2.summary.record_if(should_record):
                             label_acc_animal = tf.equal(
                                 tf.argmax(labels['animal_label'], 1),
                                 tf.argmax(logits_animal, axis=1))
