@@ -126,47 +126,50 @@ def build_multi_kingdom_input_fn(tot_num_classes,
         assert animal_num_classes == len(animals_labels)
         assert plant_num_classes == len(plants_labels)
 
-        label_idx = 0
-        all_label_dict = dict()
-        for l in all_labels:
-            all_label_dict[label_idx] = l
-            label_idx += 1
-
-        animals_label_idx = 0
-        animals_label_dict = dict()
-        for l in animals_labels:
-            animals_label_dict[l] = animals_label_idx
-            animals_label_idx += 1
-
-        plants_label_idx = 0
-        plants_label_dict = dict()
-        for l in plants_labels:
-            plants_label_dict[l] = plants_label_idx
-            plants_label_idx += 1
-
-        animals_labels = set(animals_labels)
-        plants_labels = set(plants_labels)
+        # label_idx = 0
+        # all_label_dict = dict()
+        # for l in all_labels:
+        #     all_label_dict[label_idx] = l
+        #     label_idx += 1
+        #
+        # animals_label_idx = 0
+        # animals_label_dict = dict()
+        # for l in animals_labels:
+        #     animals_label_dict[l] = animals_label_idx
+        #     animals_label_idx += 1
+        #
+        # plants_label_idx = 0
+        # plants_label_dict = dict()
+        # for l in plants_labels:
+        #     plants_label_dict[l] = plants_label_idx
+        #     plants_label_idx += 1
+        #
+        # animals_labels = set(animals_labels)
+        # plants_labels = set(plants_labels)
 
         def map_fn(example_proto):
             img_feat_desc = {
                 'image/class/label': tf.io.FixedLenFeature([], tf.int64),
+                'image/class/animal_label': tf.io.FixedLenFeature([], tf.int64),
+                'image/class/plant_label': tf.io.FixedLenFeature([], tf.int64),
+                'image/mask/animal_mask': tf.io.FixedLenFeature([], tf.float32),
+                'image/mask/plant_mask': tf.io.FixedLenFeature([], tf.float32),
                 'image/encoded': tf.io.FixedLenFeature([], tf.string),
             }
             feat = tf.io.parse_single_example(example_proto, img_feat_desc)
             image = tf.image.decode_jpeg(feat['image/encoded'], channels=3)
             label = feat['image/class/label']
+            animal_label = feat['image/class/animal_label']
+            plant_label = feat['image/class/plant_label']
+            animal_mask = feat['image/mask/animal_mask']
+            plant_mask = feat['image/mask/plant_mask']
 
-            animal_label = -1
-            plant_label = -1
-            animal_mask = 0.0
-            plant_mask = 0.0
-
-            if all_label_dict[label] in plants_labels:
-                plant_label = plants_label_dict[all_label_dict[label]]
-                plant_mask = 1.0
-            else:
-                animal_label = animals_label_dict[all_label_dict[label]]
-                animal_mask = 1.0
+            # if all_label_dict[label] in plants_labels:
+            #     plant_label = plants_label_dict[all_label_dict[label]]
+            #     plant_mask = 1.0
+            # else:
+            #     animal_label = animals_label_dict[all_label_dict[label]]
+            #     animal_mask = 1.0
 
             if FLAGS.mode == 'predict':
                 image = preprocess_fn_finetune(image)
